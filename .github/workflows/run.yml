@@ -1,0 +1,38 @@
+name: Run Main Script
+
+on:
+  # schedule:
+  #   - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.TARGET_SERVICE_ACCOUNT }}
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run Python script
+        env:
+          FOLDER_ID: ${{ vars.FOLDER_ID }}
+          TARGET_SERVICE_ACCOUNT: ${{ vars.TARGET_SERVICE_ACCOUNT }}
+        run: uv run src/main.py
