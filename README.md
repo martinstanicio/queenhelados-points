@@ -48,18 +48,19 @@ gcloud iam workload-identity-pools providers create-oidc "github-provider" \
   --workload-identity-pool="github-pool" \
   --display-name="GitHub Provider" \
   --attribute-mapping="google.subject=assertion.sub,attribute.actor=assertion.actor,attribute.repository=assertion.repository" \
+  --attribute-condition="assertion.repository == 'USERNAME/REPOSITORY'" \
   --issuer-uri="https://token.actions.githubusercontent.com"
 ```
 
 #### 3. Otorgar permisos al Repositorio de GitHub
 
-Este comando autoriza al repositorio a usar la identidad de la cuenta de servicio. Reemplazar `SERVICE_ACCOUNT_EMAIL`, `PROJECT_ID`, `PROJECT_NUMBER`, `USUARIO` y `REPOSITORIO`.
+Este comando autoriza al repositorio a usar la identidad de la cuenta de servicio. Reemplazar `SERVICE_ACCOUNT_EMAIL`, `PROJECT_ID`, `PROJECT_NUMBER`, `USERNAME` y `REPOSITORY`.
 
 ```bash
 gcloud iam service-accounts add-iam-policy-binding "SERVICE_ACCOUNT_EMAIL" \
   --project="PROJECT_ID" \
   --role="roles/iam.workloadIdentityUser" \
-  --member="principalSet://iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github-pool/attribute.repository/USUARIO/REPOSITORIO"
+  --member="principalSet://iam.googleapis.com/projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github-pool/attribute.repository/USERNAME/REPOSITORY"
 ```
 
 #### 4. Configurar Variables en GitHub
@@ -86,10 +87,10 @@ sudo apt update
 sudo apt install apt-transport-https ca-certificates gnupg curl
 
 # Descargar la llave criptográfica pública de Google
-curl [https://packages.cloud.google.com/apt/doc/apt-key.gpg](https://packages.cloud.google.com/apt/doc/apt-key.gpg) | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
 
 # Agregar el repositorio
-echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] [https://packages.cloud.google.com/apt](https://packages.cloud.google.com/apt) cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
 
 # Instalar Google Cloud CLI
 sudo apt update
