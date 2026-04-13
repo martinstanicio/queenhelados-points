@@ -5,7 +5,7 @@ from google.auth import impersonated_credentials as get_impersonated_credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 
-from adapters.storage_adapter import StorageAdapter
+from storage_adapters.storage_adapter import StorageAdapter
 from util.path import get_path_components
 
 ONE_HOUR_IN_SECONDS = 60 * 60
