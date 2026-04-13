@@ -1,15 +1,15 @@
 import pandas as pd
 
-from file_processors.client_list import ClientListProcessor
-from file_processors.pos import POSProcessor
-from file_processors.sales_by_article import SalesByArticleProcessor
-from lib.excel_parser import ExcelParser
+from data_processors.client_list import ClientListProcessor
+from data_processors.pos import POSProcessor
+from data_processors.sales_by_article import SalesByArticleProcessor
+from file_parsers.file_parser import FileParser
 from storage_adapters.storage_adapter import StorageAdapter
 from util.path import get_path_components
 
 
 class Orchestrator:
-    def __init__(self, storage: StorageAdapter, parser: ExcelParser) -> None:
+    def __init__(self, storage: StorageAdapter, parser: FileParser) -> None:
         self.storage = storage
         self.parser = parser
         self.sales_by_article_processor = SalesByArticleProcessor()

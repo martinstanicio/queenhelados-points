@@ -2,8 +2,10 @@ import io
 
 import pandas as pd
 
+from file_parsers.file_parser import FileParser
 
-class ExcelParser:
+
+class ExcelParser(FileParser):
     def parse(self, byte_stream: io.BytesIO) -> pd.DataFrame:
         try:
             return pd.read_excel(byte_stream)

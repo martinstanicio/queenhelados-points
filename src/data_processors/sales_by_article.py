@@ -1,9 +1,9 @@
 import pandas as pd
 
-from file_processors.file_processor import FileProcessor
+from data_processors.data_processor import DataProcessor
 
 
-class SalesByArticleProcessor(FileProcessor):
+class SalesByArticleProcessor(DataProcessor):
     def __init__(self) -> None:
         self.vat_multiplier = 1.21
         self.skipped_header_rows = 4

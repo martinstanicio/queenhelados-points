@@ -1,9 +1,9 @@
 import pandas as pd
 
-from file_processors.file_processor import FileProcessor
+from data_processors.data_processor import DataProcessor
 
 
-class ClientListProcessor(FileProcessor):
+class ClientListProcessor(DataProcessor):
     def __init__(self) -> None:
         self.skipped_header_rows = 2
         self.skipped_footer_rows = 0

@@ -1,9 +1,9 @@
 import pandas as pd
 
-from file_processors.file_processor import FileProcessor
+from data_processors.data_processor import DataProcessor
 
 
-class POSProcessor(FileProcessor):
+class POSProcessor(DataProcessor):
     def __init__(self) -> None:
         self.column_mapping = {
             "pos_id": int,

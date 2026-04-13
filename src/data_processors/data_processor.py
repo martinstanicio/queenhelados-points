@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import pandas as pd
 
 
-class FileProcessor(ABC):
+class DataProcessor(ABC):
     @abstractmethod
     def process(self, df: pd.DataFrame) -> pd.DataFrame:
         pass
