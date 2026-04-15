@@ -60,11 +60,16 @@ class Orchestrator:
         df_sales_pos_clients = pd.merge(
             df_sales_pos, df_clients, on=["client_number", "branch_id"], how="left"
         )
+        df_sales_pos_clients["document_id"] = (
+            df_sales_pos_clients["document_type"].str.strip()
+            + df_sales_pos_clients["tax_condition"].str.strip()
+            + df_sales_pos_clients["pos_id"].str.zfill(5)
+            + "-"
+            + df_sales_pos_clients["document_number"].str.zfill(8)
+        )
 
         df = (
-            df_sales_pos_clients.groupby(
-                ["document_type", "tax_condition", "pos_id", "document_number"]
-            )
+            df_sales_pos_clients.groupby("document_id")
             .agg(
                 {
                     "date": "first",
