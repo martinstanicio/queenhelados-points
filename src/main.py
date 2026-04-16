@@ -18,7 +18,7 @@ def main() -> None:
     # if IGNORED_CLIENT_NUMBERS:
     #     IGNORED_CLIENT_NUMBERS = list(map(int, IGNORED_CLIENT_NUMBERS.split(",")))
 
-    IGNORED_CLIENT_NUMBERS = [i for i in range(1, 9999 + 1) if i != 63]
+    IGNORED_CLIENT_NUMBERS = [i for i in range(1, 9999 + 1) if i != 4048]
 
     storage: StorageAdapter = GoogleDriveAdapter(
         Config.get_required("GDRIVE_FOLDER_ID"),
