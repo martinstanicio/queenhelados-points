@@ -19,7 +19,7 @@ class SupabaseAdapter(PersistenceAdapter):
         self.table_name = "processed_documents"
 
     def get_processed_document_ids(self) -> set[str]:
-        response = self.client.table(self.table_name).select("document_id").execute()
+        response = self.client.table(self.table_name).select("id").execute()
         processed_ids: set[str] = set()
 
         for row in response.data:
@@ -34,6 +34,6 @@ class SupabaseAdapter(PersistenceAdapter):
         if not document_ids:
             return
 
-        data = [{"document_id": id} for id in document_ids]
+        data = [{"id": id} for id in document_ids]
 
         self.client.table(self.table_name).insert(data).execute()
