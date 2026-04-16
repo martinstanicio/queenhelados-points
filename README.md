@@ -24,7 +24,7 @@ Esta será la identidad oficial del automatismo.
 
 1. En Google Cloud Console, ir a **IAM y administración > Cuentas de servicio**.
 2. Crear una nueva cuenta.
-3. Tomar nota de su correo electrónico. Este valor corresponderá a la variable de entorno `TARGET_SERVICE_ACCOUNT`.
+3. Tomar nota de su correo electrónico. Este valor corresponderá a la variable de entorno `GDRIVE_TARGET_SERVICE_ACCOUNT`.
 4. Ir a Google Drive web, hacer clic derecho sobre la carpeta raíz que contiene los archivos de Excel y compartirla con permisos de **Lector** a este correo electrónico.
 
 > [!NOTE]
@@ -71,9 +71,9 @@ Inyectar los identificadores en la configuración del repositorio para que el pi
  2. Navegar a **Settings > Secrets and variables > Actions > Variables**.
  3. Hacer clic en **New repository variable** y agregar:
 
-* **WIF_PROVIDER**: projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github-pool/providers/github-provider *(reemplazando PROJECT_NUMBER)*.
-* **TARGET_SERVICE_ACCOUNT**: El correo electrónico de la cuenta de servicio.
-* **FOLDER_ID**: El ID alfanumérico de la carpeta en Google Drive.
+* **GCLOUD_WIF_PROVIDER**: projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github-pool/providers/github-provider *(reemplazando PROJECT_NUMBER)*.
+* **GDRIVE_TARGET_SERVICE_ACCOUNT**: El correo electrónico de la cuenta de servicio.
+* **GDRIVE_FOLDER_ID**: El ID alfanumérico de la carpeta en Google Drive.
 
 ### Fase 3: Preparar el Entorno Local (WSL / Ubuntu)
 
@@ -118,4 +118,4 @@ gcloud iam service-accounts add-iam-policy-binding "SERVICE_ACCOUNT_EMAIL" \
 ```
 
 > [!WARNING]
-> Asegúrate de definir las variables FOLDER_ID y TARGET_SERVICE_ACCOUNT en el entorno (un archivo .env) antes de ejecutar localmente.
+> Asegúrate de definir las variables GDRIVE_FOLDER_ID y GDRIVE_TARGET_SERVICE_ACCOUNT en el entorno (un archivo .env) antes de ejecutar localmente.

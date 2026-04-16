@@ -31,7 +31,7 @@ def main() -> None:
     api_caller: APICaller = TiendaDePuntosCaller(Config.get_required("TDP_API_KEY"))
     persistence_adapter: PersistenceAdapter = SupabaseAdapter(
         Config.get_required("SUPABASE_URL"),
-        Config.get_required("SUPABASE_SERVICE_ROLE_KEY"),
+        Config.get_required("SUPABASE_SECRET_KEY"),
     )
 
     df = orchestrator.get_denormalized_data()
