@@ -77,9 +77,9 @@ class Orchestrator:
         df_sales_pos_clients["document_id"] = (
             df_sales_pos_clients["document_type"].str.strip()
             + df_sales_pos_clients["tax_condition"].str.strip()
-            + df_sales_pos_clients["pos_id"].str.zfill(5)
+            + df_sales_pos_clients["pos_id"].astype(str).str.zfill(5)
             + "-"
-            + df_sales_pos_clients["document_number"].str.zfill(8)
+            + df_sales_pos_clients["document_number"].astype(str).str.zfill(8)
         )
 
         df = (
