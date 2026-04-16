@@ -1,13 +1,21 @@
 from typing import Any, Mapping
 
 from supabase import Client, create_client
+from supabase.lib.client_options import SyncClientOptions
 
 from persistence_adapters.persistence_adapter import PersistenceAdapter
 
 
 class SupabaseAdapter(PersistenceAdapter):
-    def __init__(self, url: str, api_key: str) -> None:
-        self.client: Client = create_client(url, api_key)
+    def __init__(self, url: str, service_role_key: str) -> None:
+        self.client: Client = create_client(
+            url,
+            service_role_key,
+            options=SyncClientOptions(
+                auto_refresh_token=False,
+                persist_session=False,
+            ),
+        )
         self.table_name = "processed_documents"
 
     def get_processed_document_ids(self) -> set[str]:
@@ -28,5 +36,4 @@ class SupabaseAdapter(PersistenceAdapter):
 
         data = [{"document_id": id} for id in document_ids]
 
-        # Batch insert is more efficient than individual calls
         self.client.table(self.table_name).insert(data).execute()
