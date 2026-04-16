@@ -9,12 +9,20 @@ from util.path import get_path_components
 
 
 class Orchestrator:
-    def __init__(self, storage: StorageAdapter, parser: FileParser) -> None:
+    def __init__(
+        self,
+        storage: StorageAdapter,
+        parser: FileParser,
+        start_date: str | None,  # YYYYMMDD
+        ignored_client_numbers: list[int] | None,
+    ) -> None:
         self.storage = storage
         self.parser = parser
         self.sales_by_article_processor = SalesByArticleProcessor()
         self.client_list_processor = ClientListProcessor()
         self.pos_processor = POSProcessor()
+        self.start_date = start_date or "00000000"
+        self.ignored_client_numbers = ignored_client_numbers or list()
 
     def get_denormalized_data(self) -> pd.DataFrame:
         df_pos = self.pos_processor.process(
@@ -32,16 +40,22 @@ class Orchestrator:
                 continue
 
             subfolder = path_components[0]
+            file_name = path_components[1]
+            file_date = file_name.split("-")[0]
+
+            if file_date < self.start_date:
+                continue
+
             try:
                 match subfolder:
                     case "ventas-por-articulo":
                         df_raw = self.parser.parse(self.storage.open_file(file_path))
-                        list_sales_dfs.append(
-                            self.sales_by_article_processor.process(df_raw)
-                        )
-
+                        df_sales = self.sales_by_article_processor.process(df_raw)
+                        df_sales = df_sales[
+                            ~df_sales["client_number"].isin(self.ignored_client_numbers)
+                        ]
+                        list_sales_dfs.append(df_sales)
                     case "listado-de-clientes":
-                        file_name = path_components[1]
                         branch_id = file_name.split(".")[0]
                         df_raw = self.parser.parse(self.storage.open_file(file_path))
                         df_clients = self.client_list_processor.process(df_raw)
