@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class PersistenceAdapter(ABC):
+class PersistenceController(ABC):
     @abstractmethod
     def get_processed_document_ids(self) -> set[str]:
         pass

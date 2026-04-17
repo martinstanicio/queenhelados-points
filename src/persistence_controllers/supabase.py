@@ -3,10 +3,10 @@ from typing import Any, Mapping
 from supabase import Client, create_client
 from supabase.lib.client_options import SyncClientOptions
 
-from persistence_adapters.persistence_adapter import PersistenceAdapter
+from persistence_controllers.persistence_controller import PersistenceController
 
 
-class SupabaseAdapter(PersistenceAdapter):
+class SupabaseController(PersistenceController):
     def __init__(self, url: str, service_role_key: str) -> None:
         self.client: Client = create_client(
             url,

@@ -4,8 +4,8 @@ from file_parsers.excel import ExcelParser
 from file_parsers.file_parser import FileParser
 from lib.config import Config
 from lib.orchestrator import Orchestrator
-from persistence_adapters.persistence_adapter import PersistenceAdapter
-from persistence_adapters.supabase import SupabaseAdapter
+from persistence_controllers.persistence_controller import PersistenceController
+from persistence_controllers.supabase import SupabaseController
 from storage_adapters.gdrive import GoogleDriveAdapter
 from storage_adapters.storage_adapter import StorageAdapter
 
@@ -36,7 +36,7 @@ def main() -> None:
         IGNORED_CLIENT_NUMBERS,
     )
     api_caller: APICaller = TiendaDePuntosCaller(Config.get_required("TDP_API_KEY"))
-    persistence_adapter: PersistenceAdapter = SupabaseAdapter(
+    persistence_controller: PersistenceController = SupabaseController(
         Config.get_required("SUPABASE_URL"),
         Config.get_required("SUPABASE_SECRET_KEY"),
     )
@@ -73,7 +73,7 @@ def main() -> None:
     if df.empty:
         return
 
-    existing_processed_ids = persistence_adapter.get_processed_document_ids()
+    existing_processed_ids = persistence_controller.get_processed_document_ids()
 
     # Using ~ and isin for an efficient boolean mask filtering
     df_filtered = df[~df["document_id"].isin(existing_processed_ids)].copy()
@@ -84,7 +84,7 @@ def main() -> None:
     newly_processed_ids = api_caller.call(df_filtered)
 
     if newly_processed_ids:
-        persistence_adapter.add_processed_document_ids(list(newly_processed_ids))
+        persistence_controller.add_processed_document_ids(list(newly_processed_ids))
 
 
 if __name__ == "__main__":
