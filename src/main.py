@@ -11,35 +11,18 @@ from storage_adapters.storage_adapter import StorageAdapter
 
 
 def main() -> None:
-    # IGNORED_CLIENT_NUMBERS = Config.get_optional(
-    #     "IGNORED_CLIENT_NUMBERS", default="1, 4, 7, 9, 10, 11, 13, 14, 15, 17"
-    # )
+    _IGNORED_CLIENT_NUMBERS = Config.get_optional(
+        "IGNORED_CLIENT_NUMBERS", default="1, 4, 7, 9, 10, 11, 13, 14, 15, 17"
+    )
 
-    # if IGNORED_CLIENT_NUMBERS:
-    #     IGNORED_CLIENT_NUMBERS = list(map(int, IGNORED_CLIENT_NUMBERS.split(",")))
-
-    IGNORED_CLIENT_NUMBERS = list(range(1, 9999 + 1))
-    for i in [
-        4048,
-        1307,
-        63,
-        61,
-        2594,
-        3391,
-        70,
-        2627,
-        62,
-        3394,
-        3402,
-        40,
-        60,
-        453,
-        2365,
-        43,
-        69,
-        37,
-    ]:
-        IGNORED_CLIENT_NUMBERS.remove(i)
+    try:
+        IGNORED_CLIENT_NUMBERS = (
+            list(map(int, _IGNORED_CLIENT_NUMBERS.split(",")))
+            if _IGNORED_CLIENT_NUMBERS
+            else None
+        )
+    except ValueError:
+        pass
 
     storage: StorageAdapter = GoogleDriveAdapter(
         Config.get_required("GDRIVE_FOLDER_ID"),
@@ -47,7 +30,10 @@ def main() -> None:
     )
     parser: FileParser = ExcelParser()
     orchestrator = Orchestrator(
-        storage, parser, Config.get_optional("START_DATE"), IGNORED_CLIENT_NUMBERS
+        storage,
+        parser,
+        Config.get_optional("START_DATE"),
+        IGNORED_CLIENT_NUMBERS,
     )
     api_caller: APICaller = TiendaDePuntosCaller(Config.get_required("TDP_API_KEY"))
     persistence_adapter: PersistenceAdapter = SupabaseAdapter(
@@ -56,6 +42,33 @@ def main() -> None:
     )
 
     df = orchestrator.get_denormalized_data()
+
+    ALLOWED_BRANCH_ID = "escobar"
+    ALLOWED_CLIENT_NUMBERS = [
+        37,
+        40,
+        43,
+        60,
+        62,
+        61,
+        63,
+        69,
+        70,
+        453,
+        1307,
+        2365,
+        2594,
+        2627,
+        3391,
+        3394,
+        3402,
+        4048,
+    ]
+
+    df = df[
+        (df["branch_id"] == ALLOWED_BRANCH_ID)
+        & (df["client_number"].isin(ALLOWED_CLIENT_NUMBERS))
+    ].copy()
 
     if df.empty:
         return
