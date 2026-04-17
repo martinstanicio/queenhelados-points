@@ -1,5 +1,87 @@
 # Queen Helados - Points
 
+## Arquitectura Modular
+
+El sistema está diseñado bajo el principio de inversión de dependencias, permitiendo que cada componente principal sea intercambiable mediante el uso de adaptadores y controladores genéricos.
+
+### Adaptador de Almacenamiento (Storage Adapter)
+
+Este módulo se encarga de la abstracción del origen de los archivos. Define una interfaz común para listar carpetas y descargar archivos como streams de bytes, permitiendo cambiar el proveedor de nube sin afectar la lógica de negocio.
+
+La implementación actual es **Google Drive API v3**.
+
+### Parser de Archivos (File Parser)
+
+Responsable de interpretar la estructura física de los archivos descargados para transformarlos en estructuras de datos de memoria (DataFrames de Pandas).
+
+La implementación actual es utiliza **Pandas** con el motor `xlrd` para soporte de archivos `.xls` y `openpyxl` para archivos `.xlsx`.
+
+### Procesadores de Datos (Data Processors)
+
+Módulos especializados en la lógica de limpieza y estructuración de cada tipo de reporte. Se encargan de tipar columnas, eliminar filas irrelevantes y estandarizar los datos crudos antes de que lleguen a la etapa de unión y denormalización.
+
+La implementación actual permite procesar archivos de **Detalle de Ventas por Artículo** (`SalesByArticleProcessor`), **Puntos de Venta** (`POSProcessor`) y **Listado de Clientes** (`ClientListProcessor`).
+
+### Controlador de Persistencia (Persistence Adapter)
+
+Su función principal es evitar el procesamiento duplicado de transacciones consultando y guardando las facturas que ya fueron procesadas.
+
+La implementación actual es **Supabase**.
+
+### Comunicador API (API Caller)
+
+Módulo encargado de la salida de datos hacia servicios externos. Transforma la información denormalizada en el esquema JSON requerido por el receptor final.
+
+La implementación actual es **Tienda de Puntos**, cuya documentación se encuentra en [docs.google.com/document/d/1gJn9klYxgWWrXO7AIfUrgvlEt4J-Wluz68o9elp9iGY/view](https://docs.google.com/document/d/1gJn9klYxgWWrXO7AIfUrgvlEt4J-Wluz68o9elp9iGY/view).
+
+### Orquestador (Orchestrator)
+
+Coordina el flujo de datos integral. Solicita los archivos al adaptador de almacenamiento, los procesa mediante los Data Processors correspondientes y finalmente realiza la denormalización (joins) de las diferentes fuentes para consolidar una única entidad de venta por cliente.
+
+## Flujo de la Información
+
+```mermaid
+graph TD
+  %% --- Origen de Datos ---
+  subgraph SG [Sistema de Gestión]
+    RAW[Reportes de Ventas y Clientes]
+  end
+
+  %% --- Adaptador de Almacenamiento ---
+  subgraph SA ["Adaptador de Almacenamiento (Google Drive)"]
+    RAW -->|Carga| STR[Almacén de Archivos]
+    STR -->|Stream de bytes| PAR["Lógica de Parsing"]
+  end
+
+  %% --- Procesadores de Datos ---
+  subgraph DP [Procesadores de Datos]
+    PAR -->|DataFrames Crudos| PRC[Cleanup y Estandarización]
+    PRC --> VAL[Validación de Tipos]
+  end
+
+  %% --- Orquestador ---
+  subgraph ORQ [Orquestador]
+    VAL -->|Datos Estructurados| TRF[Transformación y Denormalización]
+    TRF -->|Ventas por artículo y cliente| FIL{Filtro de Seguridad}
+  end
+
+  %% --- Controlador de Persistencia ---
+  subgraph CP ["Controlador de Persistencia (Supabase)"]
+    FIL -->|Validar si la factura ya fue procesada| DB[(Registro de Documentos)]
+    DB -.->|Excluir facturas procesadas| FIL
+  end
+
+  %% --- Comunicador API ---
+  subgraph CA ["Comunicador API (Tienda de Puntos)"]
+    FIL -->|Ventas pendientes de carga| REQ[Petición de Sincronización]
+    REQ -->|Acreditación exitosa| RES[Respuesta de Confirmación]
+  end
+
+  %% --- Cierre del Ciclo ---
+  RES -->|Confirmar éxito| DB
+  RES -->|Notificación| CF((Cliente Final))
+```
+
 ## Configuración del Adaptador de Google Drive
 
 El adaptador de Google Drive utiliza una arquitectura de seguridad **Zero Trust**, implementando **Application Default Credentials (ADC)** y **Workload Identity Federation (WIF)** para gestionar el acceso sin almacenar credenciales estáticas. A continuación, se detallan los pasos para configurar la infraestructura requerida.
