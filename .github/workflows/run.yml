@@ -1,8 +1,8 @@
 name: Run Main Script
 
 on:
-  # schedule:
-  #   - cron: "0 3 * * *"
+  schedule:
+    - cron: "0 6 * * *" # 6:00 AM UTC / 3:00 AM GMT-3
   workflow_dispatch:
 
 permissions:
