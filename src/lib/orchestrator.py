@@ -70,9 +70,9 @@ class Orchestrator:
         df_sales = pd.concat(list_sales_dfs, ignore_index=True)
         df_clients = pd.concat(list_client_dfs, ignore_index=True)
 
-        df_sales_pos = pd.merge(df_sales, df_pos, on="pos_id", how="left")
+        df_sales_pos = pd.merge(df_sales, df_pos, on="pos_id", how="inner")
         df_sales_pos_clients = pd.merge(
-            df_sales_pos, df_clients, on=["client_number", "branch_id"], how="left"
+            df_sales_pos, df_clients, on=["client_number", "branch_id"], how="inner"
         )
         df_sales_pos_clients["document_id"] = (
             df_sales_pos_clients["document_type"].str.strip()
