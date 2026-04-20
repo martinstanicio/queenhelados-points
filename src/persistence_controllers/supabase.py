@@ -1,5 +1,3 @@
-from typing import Any, Mapping
-
 from supabase import Client, create_client
 from supabase.lib.client_options import SyncClientOptions
 
@@ -17,16 +15,14 @@ class SupabaseController(PersistenceController):
             ),
         )
         self.table_name = "processed_documents"
+        self.column_name = "id"
 
     def get_processed_document_ids(self) -> set[str]:
-        response = self.client.table(self.table_name).select("id").execute()
+        response = self.client.table(self.table_name).select(self.column_name).execute()
         processed_ids: set[str] = set()
 
         for row in response.data:
-            if row is not Mapping[str, Any]:
-                continue
-
-            processed_ids.add(row["document_id"])
+            processed_ids.add(row[self.column_name])
 
         return processed_ids
 
