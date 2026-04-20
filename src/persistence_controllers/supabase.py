@@ -36,4 +36,4 @@ class SupabaseController(PersistenceController):
 
         data = [{"id": id} for id in document_ids]
 
-        self.client.table(self.table_name).insert(data).execute()
+        self.client.table(self.table_name).upsert(data).execute()
