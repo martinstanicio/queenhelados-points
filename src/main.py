@@ -44,31 +44,8 @@ def main() -> None:
     df = orchestrator.get_denormalized_data()
 
     ALLOWED_BRANCH_ID = "escobar"
-    ALLOWED_CLIENT_NUMBERS = [
-        37,
-        40,
-        43,
-        60,
-        62,
-        61,
-        63,
-        69,
-        70,
-        453,
-        1307,
-        2365,
-        2594,
-        2627,
-        3391,
-        3394,
-        3402,
-        4048,
-    ]
 
-    df = df[
-        (df["branch_id"] == ALLOWED_BRANCH_ID)
-        & (df["client_number"].isin(ALLOWED_CLIENT_NUMBERS))
-    ].copy()
+    df = df[(df["branch_id"] == ALLOWED_BRANCH_ID)].copy()
 
     if df.empty:
         return
