@@ -29,10 +29,11 @@ class Orchestrator:
     def get_denormalized_data(self) -> pd.DataFrame:
         df_pos = self.pos_processor.process(
             self.parser.parse(self.storage.open_file("puntos-de-venta.xlsx"))
-        )
+        )[["pos_id", "branch_id"]]
+
         df_articles = self.articles_processor.process(
             self.parser.parse(self.storage.open_file("productos.xlsx"))
-        )
+        )[["article_code", "points_multiplier"]]
 
         all_files = self.storage.list_files()
         list_sales_dfs: list[pd.DataFrame] = []
@@ -59,13 +60,27 @@ class Orchestrator:
                         df_sales = df_sales[
                             ~df_sales["client_number"].isin(self.ignored_client_numbers)
                         ]
-                        list_sales_dfs.append(df_sales)
+                        list_sales_dfs.append(
+                            df_sales[
+                                [
+                                    "article_code",
+                                    "total_price",
+                                    "document_type",
+                                    "tax_condition",
+                                    "pos_id",
+                                    "document_number",
+                                    "client_number",
+                                ]
+                            ]
+                        )
                     case "listado-de-clientes":
                         branch_id = file_name.split(".")[0]
                         df_raw = self.parser.parse(self.storage.open_file(file_path))
                         df_clients = self.client_list_processor.process(df_raw)
                         df_clients["branch_id"] = branch_id
-                        list_client_dfs.append(df_clients)
+                        list_client_dfs.append(
+                            df_clients[["client_number", "branch_id", "client_email"]]
+                        )
             except Exception as e:
                 print(f"[!] Error processing {file_path}: {e}")
 
@@ -111,10 +126,7 @@ class Orchestrator:
             df_sales_articles_pos_clients.groupby("document_id")
             .agg(
                 {
-                    "date": "first",
-                    "time": "first",
                     "branch_id": "first",
-                    "client_number": "first",
                     "client_email": "first",
                     "total_price": "sum",
                 }
