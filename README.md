@@ -44,7 +44,7 @@ La implementación actual es utiliza **Pandas** con el motor `xlrd` para soporte
 
 Módulos especializados en la lógica de limpieza y estructuración de cada tipo de reporte. Se encargan de tipar columnas, eliminar filas irrelevantes y estandarizar los datos crudos antes de que lleguen a la etapa de unión y denormalización.
 
-La implementación actual permite procesar archivos de **Detalle de Ventas por Artículo** (`SalesByArticleProcessor`), **Puntos de Venta** (`POSProcessor`) y **Listado de Clientes** (`ClientListProcessor`).
+La implementación actual permite procesar archivos de **Artículos** (`ArticlesProcessor`), **Detalle de Ventas por Artículo** (`SalesByArticleProcessor`), **Puntos de Venta** (`POSProcessor`) y **Listado de Clientes** (`ClientListProcessor`).
 
 ### Controlador de Persistencia (Persistence Adapter)
 
@@ -60,7 +60,7 @@ La implementación actual es **Tienda de Puntos**, cuya documentación se encuen
 
 ### Orquestador (Orchestrator)
 
-Coordina el flujo de datos integral. Solicita los archivos al adaptador de almacenamiento, los procesa mediante los Data Processors correspondientes y finalmente realiza la denormalización (joins) de las diferentes fuentes para consolidar una única entidad de venta por cliente.
+Coordina el flujo de datos integral. Solicita los archivos al adaptador de almacenamiento, los procesa mediante los Data Processors correspondientes y finalmente realiza la denormalización (joins) de las diferentes fuentes para consolidar una única entidad de venta por factura.
 
 ## Flujo de la Información
 
