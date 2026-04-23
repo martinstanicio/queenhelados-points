@@ -1,5 +1,29 @@
 # Queen Helados - Points
 
+Sistema automatizado de lealtad y recompensas que integra las ventas del sistema de gestión con la plataforma **Tienda de Puntos**, utilizando una arquitectura de adaptadores para máxima flexibilidad.
+
+## 📋 Tabla de Contenidos
+
+- [Introducción](#introducción)
+- [Requisitos Previos](#requisitos-previos)
+- [Arquitectura Modular](#arquitectura-modular)
+- [Flujo de la Información](#flujo-de-la-información)
+- [Configuración del Adaptador de Google Drive](#configuración-del-adaptador-de-google-drive)
+- [Configuración del Adaptador de Supabase](#configuración-del-adaptador-de-supabase)
+- [Configuración de las variables de entorno](#configuración-de-las-variables-de-entorno)
+
+## Introducción
+
+Esta integración resuelve la brecha entre el sistema de gestión utilizado actualmente, y una plataforma de fidelización mediante puntos: [Tienda de Puntos](https://www.tiendadepuntos.com/). El script procesa automáticamente las ventas, identifica a los clientes por su mail, y sincroniza la información para que la plataforma gestione los puntos.
+
+## Requisitos Previos
+
+- Gestor de paquetes `uv`.
+- Cuenta en **Google Cloud Platform** (para la Google Drive API).
+- Proyecto en **Supabase** para guardar las facturas procesadas.
+- API Key de **Tienda de Puntos**.
+- Acceso a los reportes `.xls` o `.xlsx` del sistema de gestión.
+
 ## Arquitectura Modular
 
 El sistema está diseñado bajo el principio de inversión de dependencias, permitiendo que cada componente principal sea intercambiable mediante el uso de adaptadores y controladores genéricos.
@@ -153,9 +177,9 @@ Inyectar los identificadores en la configuración del repositorio para que el pi
  2. Navegar a **Settings > Secrets and variables > Actions > Variables**.
  3. Hacer clic en **New repository variable** y agregar:
 
-* **GCLOUD_WIF_PROVIDER**: projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github-pool/providers/github-provider *(reemplazando PROJECT_NUMBER)*.
-* **GDRIVE_TARGET_SERVICE_ACCOUNT**: El correo electrónico de la cuenta de servicio.
-* **GDRIVE_FOLDER_ID**: El ID alfanumérico de la carpeta en Google Drive.
+- **GCLOUD_WIF_PROVIDER**: projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github-pool/providers/github-provider *(reemplazando PROJECT_NUMBER)*.
+- **GDRIVE_TARGET_SERVICE_ACCOUNT**: El correo electrónico de la cuenta de servicio.
+- **GDRIVE_FOLDER_ID**: El ID alfanumérico de la carpeta en Google Drive.
 
 ### Fase 3: Preparar el Entorno Local (WSL / Ubuntu)
 
@@ -201,3 +225,23 @@ gcloud iam service-accounts add-iam-policy-binding "SERVICE_ACCOUNT_EMAIL" \
 
 > [!WARNING]
 > Asegúrate de definir las variables GDRIVE_FOLDER_ID y GDRIVE_TARGET_SERVICE_ACCOUNT en el entorno (un archivo .env) antes de ejecutar localmente.
+
+## Configuración del Adaptador de Supabase
+
+El adaptador de Supabase se encarga de la persistencia de las facturas procesadas para evitar carga de puntos duplicadas. A continuación, se detallan los pasos para configurar la base de datos y las credenciales necesarias.
+
+1. Crear un nuevo proyecto en [Supabase](https://supabase.com/), con *Data API* y *Automatic RLS*.
+2. Tomar nota de la URL del proyecto (`SUPABASE_URL`) y de la clave secreta de la API (`SUPABASE_SECRET_KEY`).
+3. Ir a la sección de SQL Editor y crear una tabla con la estructura detallada a continuación.
+
+```mermaid
+erDiagram
+    processed_documents {
+        text id
+        timestampz created_at
+    }
+```
+
+## Configuración de las variables de entorno
+
+En el archivo `.env.example` se encuentran definidas todas las variables de entorno necesarias para el correcto funcionamiento del sistema, que deben ser almacenadas en un archivo `.env` en la raíz del proyecto.
