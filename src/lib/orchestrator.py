@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 import pandas as pd
 
 from data_processors.articles import ArticlesProcessor
@@ -25,6 +27,9 @@ class Orchestrator:
         self.articles_processor = ArticlesProcessor()
         self.start_date = start_date or "00000000"
         self.ignored_client_numbers = ignored_client_numbers or list()
+        self.limit_date = (datetime.now() - timedelta(days=7)).strftime(
+            "%Y%m%d"  # YYYYMMDD
+        )
 
     def get_denormalized_data(self) -> pd.DataFrame:
         df_pos = self.pos_processor.process(
@@ -42,19 +47,22 @@ class Orchestrator:
         for file_path in all_files:
             path_components = get_path_components(file_path)
 
-            if len(path_components) < 2:
+            if len(path_components) != 2:
                 continue
 
-            subfolder = path_components[0]
-            file_name = path_components[1]
-            file_date = file_name.split("-")[0]
-
-            if file_date < self.start_date:
-                continue
+            subfolder, file_name = path_components
 
             try:
                 match subfolder:
                     case "ventas-por-articulo":
+                        file_date = file_name.split("-")[0]
+
+                        if file_date < self.start_date:
+                            continue
+
+                        if file_date < self.limit_date:
+                            continue
+
                         df_raw = self.parser.parse(self.storage.open_file(file_path))
                         df_sales = self.sales_by_article_processor.process(df_raw)
                         df_sales = df_sales[
