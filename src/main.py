@@ -43,10 +43,6 @@ def main() -> None:
 
     df = orchestrator.get_denormalized_data()
 
-    ALLOWED_BRANCH_ID = "escobar"
-
-    df = df[(df["branch_id"] == ALLOWED_BRANCH_ID)].copy()
-
     if df.empty:
         return
 

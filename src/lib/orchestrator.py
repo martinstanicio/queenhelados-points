@@ -132,13 +132,7 @@ class Orchestrator:
 
         df = (
             df_sales_articles_pos_clients.groupby("document_id")
-            .agg(
-                {
-                    "branch_id": "first",
-                    "client_email": "first",
-                    "total_price": "sum",
-                }
-            )
+            .agg({"client_email": "first", "total_price": "sum"})
             .reset_index()
         )
 
